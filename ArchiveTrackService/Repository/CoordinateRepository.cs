@@ -2,11 +2,11 @@
 using ArchiveTrackService.Helper.Abstraction;
 using ArchiveTrackService.Models;
 using ArchiveTrackService.Models.DBModels;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ArchiveTrackService.Repository
 {
@@ -20,12 +20,12 @@ namespace ArchiveTrackService.Repository
             _feedsIncludedRepository = feedsIncludedRepository;
         }
 
-        public feedGetResponse getCoordinates(string vehicleIds, DateTime? startDate, DateTime? endDate, string includeType, Pagination pageInfo)
+        public dynamic getCoordinates(string vehicleIds, DateTime? startDate, DateTime? endDate, string includeType, Pagination pageInfo)
         {
-            feedGetResponse response = new feedGetResponse();
-            int totalCount = 0;
             try
             {
+                int totalCount = 0;
+                feedGetResponse response = new feedGetResponse();
                 List<Coordinates> objCoordinateList = new List<Coordinates>();
                 if (!string.IsNullOrEmpty(vehicleIds))
                 {
@@ -78,14 +78,8 @@ namespace ArchiveTrackService.Repository
                     }
                 }
                 if (objCoordinateList == null || objCoordinateList.Count == 0)
-                {
-                    response.status = false;
-                    response.message = "Feeds not found.";
-                    response.data = null;
-
-                    response.responseCode = ResponseCode.NotFound;
-                    return response;
-                }
+                    return ReturnResponse.ErrorResponse(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
+                
                 var page = new Pagination
                 {
                     offset = pageInfo.offset,
@@ -117,54 +111,38 @@ namespace ArchiveTrackService.Repository
                     includeData = null;
 
                 response.status = true;
-                response.message = "Feeds retrived successfully.";
+                response.message = CommonMessage.FeedRetrived;
                 response.pagination = page;
                 response.data = objCoordinateList;
                 response.included = includeData;
-                response.responseCode = ResponseCode.Success;
+                response.statusCode = StatusCodes.Status200OK;
                 return response;
             }
             catch (Exception ex)
             {
-                response.status = false;
-                response.message = "Something went wrong while getting feeds. Error Message - " + ex.Message;
-                response.data = null;
-                response.responseCode = ResponseCode.InternalServerError;
-                return response;
+                return ReturnResponse.ExceptionResponse(ex);
             }
         }
 
-        public feedResponse InsertCoordinates(List<Coordinates> Model)
+        public dynamic InsertCoordinates(List<Coordinates> Model)
         {
-            feedResponse response = new feedResponse();
             try
             {
                 if (Model == null)
-                {
-                    response.status = false;
-                    response.message = "Pass valid data in model.";
-                    response.responseCode = ResponseCode.BadRequest;
-                    return response;
-                }
+                    return ReturnResponse.ErrorResponse(CommonMessage.BadRequest, StatusCodes.Status400BadRequest);
+                
                 _context.Coordinates.AddRange(Model);
                 _context.SaveChanges();
-                response.status = true;
-                response.message = "Coordinates inserted successfully.";
-                response.responseCode = ResponseCode.Created;
-                return response;
+                return ReturnResponse.SuccessResponse(CommonMessage.FeedInsert, true);
             }
             catch (Exception ex)
             {
-                response.status = false;
-                response.message = "Something went wrong while inserting feeds. Error Message - " + ex.Message;
-                response.responseCode = ResponseCode.InternalServerError;
-                return response;
+                return ReturnResponse.ExceptionResponse(ex);
             }
         }
 
-        public feedResponse DeleteCoordinates(string vehicleIds, DateTime? startDate, DateTime? endDate)
+        public dynamic DeleteCoordinates(string vehicleIds, DateTime? startDate, DateTime? endDate)
         {
-            feedResponse response = new feedResponse();
             try
             {
                 List<Coordinates> objCoordinateList = new List<Coordinates>();
@@ -194,28 +172,18 @@ namespace ArchiveTrackService.Repository
                         objCoordinateList = _context.Coordinates.ToList();
                 }
                 if (objCoordinateList == null || objCoordinateList.ToList().Count == 0)
-                {
-                    response.status = false;
-                    response.message = "Feeds not found.";
-                    response.responseCode = ResponseCode.NotFound;
-                    return response;
-                }
+                    return ReturnResponse.ErrorResponse(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
+                
                 if (objCoordinateList != null)
                 {
                     _context.Coordinates.RemoveRange(objCoordinateList);
                     _context.SaveChanges();
                 }
-                response.status = true;
-                response.message = "Feeds deleted successfully.";
-                response.responseCode = ResponseCode.Success;
-                return response;
+                return ReturnResponse.SuccessResponse(CommonMessage.FeedDelete, false);
             }
             catch (Exception ex)
             {
-                response.status = false;
-                response.message = "Something went wrong while deleting feeds. Error Message - " + ex.Message;
-                response.responseCode = ResponseCode.InternalServerError;
-                return response;
+                return ReturnResponse.ExceptionResponse(ex);
             }
         }
     }

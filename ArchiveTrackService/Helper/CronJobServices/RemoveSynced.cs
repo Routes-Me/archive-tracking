@@ -1,12 +1,7 @@
 ﻿using ArchiveTrackService.Abstraction;
 using ArchiveTrackService.Helper.CronJobServices.CronJobExtensionMethods;
-using ArchiveTrackService.Models;
-using ArchiveTrackService.Models.DBModels;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.MySqlClient;
 using System;
-using System.Data;
-using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 
