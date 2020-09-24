@@ -5,6 +5,7 @@ using ArchiveTrackService.Helper.CronJobServices;
 using ArchiveTrackService.Helper.CronJobServices.CronJobExtensionMethods;
 using ArchiveTrackService.Helper.Repository;
 using ArchiveTrackService.Models;
+using ArchiveTrackService.Models.Common;
 using ArchiveTrackService.Models.DBModels;
 using ArchiveTrackService.Repository;
 using Microsoft.AspNetCore.Builder;
@@ -47,6 +48,9 @@ namespace ArchiveTrackService
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
             var appSettings = appSettingsSection.Get<AppSettings>();
+
+            var dependenciessSection = Configuration.GetSection("Dependencies");
+            services.Configure<Dependencies>(dependenciessSection);
 
             services.AddDbContext<archivetrackserviceContext>(options =>
             {
