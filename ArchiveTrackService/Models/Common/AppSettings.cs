@@ -2,7 +2,6 @@
 {
     public class AppSettings
     {
-        public string VehicleEndpointUrl { get; set; }
-        public string DevicesEndpointUrl { get; set; }
+        public string Host { get; set; }
     }
 }
