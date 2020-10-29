@@ -10,10 +10,10 @@ resources:
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '30e1d023-9719-4106-ae94-f8fd90db09e2'
-  imageRepository: 'stagearchivetrackingservice'
-  containerRegistry: 'noruaebscontainerregistry.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/ArchiveTrackService/Dockerfile'
+  dockerRegistryServiceConnection: '9465da3c-558a-408e-96c5-a12ca33a5af0'
+  imageRepository: 'archivetrackingservice'
+  containerRegistry: 'stagenoruaebscontainerregistry.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/ArchiveTrackService/Dockerfile-stage'
   tag: '$(Build.BuildId)'
   
   # Agent VM image name
