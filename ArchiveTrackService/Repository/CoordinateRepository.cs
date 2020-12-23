@@ -122,25 +122,22 @@ namespace ArchiveTrackService.Repository
             }
         }
 
-        public dynamic InsertCoordinates(List<Coordinates> Model)
+        public dynamic InsertCoordinates(List<Coordinates> coordinates)
         {
             try
             {
-                if (Model == null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.BadRequest, StatusCodes.Status400BadRequest);
-
                 List<Coordinates> lstCoordinates = new List<Coordinates>();
-                foreach (var item in Model)
+                foreach (var item in coordinates)
                 {
-                    Coordinates coordinates = new Coordinates();
-                    coordinates.CoordinateId = item.CoordinateId;
-                    coordinates.DeviceId = item.DeviceId;
-                    coordinates.VehicleId = item.VehicleId;
-                    coordinates.Latitude = item.Latitude;
-                    coordinates.Longitude = item.Longitude;
-                    coordinates.CreatedAt = DateTime.Now;
-                    coordinates.ArchivedAt = item.ArchivedAt;
-                    lstCoordinates.Add(coordinates);
+                    Coordinates objCoordinates = new Coordinates();
+                    objCoordinates.CoordinateId = item.CoordinateId;
+                    objCoordinates.DeviceId = item.DeviceId;
+                    objCoordinates.VehicleId = item.VehicleId;
+                    objCoordinates.Latitude = item.Latitude;
+                    objCoordinates.Longitude = item.Longitude;
+                    objCoordinates.CreatedAt = item.ArchivedAt;
+                    objCoordinates.ArchivedAt = DateTime.Now; 
+                    lstCoordinates.Add(objCoordinates);
                 }
                 _context.Coordinates.AddRange(lstCoordinates);
                 _context.SaveChanges();
