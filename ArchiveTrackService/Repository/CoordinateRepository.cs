@@ -13,7 +13,7 @@ namespace ArchiveTrackService.Repository
     public class CoordinateRepository : ICoordinateRepository
     {
         private readonly archivetrackserviceContext _context;
-        private readonly  IFeedsIncludedRepository _feedsIncludedRepository;
+        private readonly IFeedsIncludedRepository _feedsIncludedRepository;
         public CoordinateRepository(archivetrackserviceContext context, IFeedsIncludedRepository feedsIncludedRepository)
         {
             _context = context;
@@ -42,10 +42,10 @@ namespace ArchiveTrackService.Repository
                     {
                         if (startDate != null && endDate != null)
                         {
-                            objCoordinateList = _context.Coordinates.Where(x => x.Timestamp >= startDate && x.Timestamp <= endDate && VehicleIds.Contains(x.VehicleId))
+                            objCoordinateList = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && VehicleIds.Contains(x.VehicleId))
                            .OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
 
-                            totalCount = _context.Coordinates.Where(x => x.Timestamp >= startDate && x.Timestamp <= endDate && VehicleIds.Contains(x.VehicleId)).ToList().Count();
+                            totalCount = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && VehicleIds.Contains(x.VehicleId)).ToList().Count();
                         }
                         else
                         {
@@ -65,10 +65,10 @@ namespace ArchiveTrackService.Repository
                 {
                     if (startDate != null && endDate != null)
                     {
-                        objCoordinateList = _context.Coordinates.Where(x => x.Timestamp >= startDate && x.Timestamp <= endDate)
+                        objCoordinateList = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
                             .OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
 
-                        totalCount = _context.Coordinates.Where(x => x.Timestamp >= startDate && x.Timestamp <= endDate).ToList().Count();
+                        totalCount = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).ToList().Count();
                     }
                     else
                     {
@@ -77,9 +77,7 @@ namespace ArchiveTrackService.Repository
                         totalCount = _context.Coordinates.ToList().Count();
                     }
                 }
-                if (objCoordinateList == null || objCoordinateList.Count == 0)
-                    return ReturnResponse.ErrorResponse(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
-                
+
                 var page = new Pagination
                 {
                     offset = pageInfo.offset,
@@ -130,8 +128,21 @@ namespace ArchiveTrackService.Repository
             {
                 if (Model == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.BadRequest, StatusCodes.Status400BadRequest);
-                
-                _context.Coordinates.AddRange(Model);
+
+                List<Coordinates> lstCoordinates = new List<Coordinates>();
+                foreach (var item in Model)
+                {
+                    Coordinates coordinates = new Coordinates();
+                    coordinates.CoordinateId = item.CoordinateId;
+                    coordinates.DeviceId = item.DeviceId;
+                    coordinates.VehicleId = item.VehicleId;
+                    coordinates.Latitude = item.Latitude;
+                    coordinates.Longitude = item.Longitude;
+                    coordinates.CreatedAt = DateTime.Now;
+                    coordinates.ArchivedAt = item.ArchivedAt;
+                    lstCoordinates.Add(coordinates);
+                }
+                _context.Coordinates.AddRange(lstCoordinates);
                 _context.SaveChanges();
                 return ReturnResponse.SuccessResponse(CommonMessage.FeedInsert, true);
             }
@@ -156,7 +167,7 @@ namespace ArchiveTrackService.Repository
                         {
                             tempCoordinateList = new List<Coordinates>();
                             if (startDate != null && endDate != null)
-                                tempCoordinateList = _context.Coordinates.Where(x => x.VehicleId == Convert.ToInt32(item) && x.Timestamp >= startDate && x.Timestamp <= endDate).ToList();
+                                tempCoordinateList = _context.Coordinates.Where(x => x.VehicleId == Convert.ToInt32(item) && x.CreatedAt >= startDate && x.CreatedAt <= endDate).ToList();
                             else
                                 tempCoordinateList = _context.Coordinates.Where(x => x.VehicleId == Convert.ToInt32(item)).ToList();
 
@@ -167,13 +178,13 @@ namespace ArchiveTrackService.Repository
                 else
                 {
                     if (startDate != null && endDate != null)
-                        objCoordinateList = _context.Coordinates.Where(x => x.Timestamp >= startDate && x.Timestamp <= endDate).ToList();
+                        objCoordinateList = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).ToList();
                     else
                         objCoordinateList = _context.Coordinates.ToList();
                 }
                 if (objCoordinateList == null || objCoordinateList.ToList().Count == 0)
                     return ReturnResponse.ErrorResponse(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
-                
+
                 if (objCoordinateList != null)
                 {
                     _context.Coordinates.RemoveRange(objCoordinateList);

@@ -28,9 +28,17 @@ namespace ArchiveTrackService.Models.DBModels
 
                 entity.Property(e => e.CoordinateId)
                     .HasColumnName("coordinate_id")
-                    .HasColumnType("varchar(40)")
-                    .HasCharSet("utf8")
-                    .HasCollation("utf8_bin");
+                    .HasColumnType("varchar(255)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.ArchivedAt)
+                    .HasColumnName("archived_at")
+                    .HasColumnType("timestamp");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnName("created_at")
+                    .HasColumnType("datetime");
 
                 entity.Property(e => e.DeviceId).HasColumnName("device_id");
 
@@ -41,10 +49,6 @@ namespace ArchiveTrackService.Models.DBModels
                 entity.Property(e => e.Longitude)
                     .HasColumnName("longitude")
                     .HasColumnType("decimal(10,0)");
-
-                entity.Property(e => e.Timestamp)
-                    .HasColumnName("timestamp")
-                    .HasColumnType("datetime");
 
                 entity.Property(e => e.VehicleId).HasColumnName("vehicle_id");
             });
