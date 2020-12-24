@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ArchiveTrackService.Abstraction;
 using ArchiveTrackService.Models;
 using ArchiveTrackService.Models.DBModels;
+using ArchiveTrackService.Models.ResponseModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchiveTrackService.Controllers
@@ -18,26 +19,26 @@ namespace ArchiveTrackService.Controllers
         }
 
         [HttpGet]
-        [Route("feeds/{id=0}")]
-        public IActionResult Get(string id, string include, [FromQuery] Pagination pageInfo)
+        [Route("feeds/{coordinateId=0}")]
+        public IActionResult Get(string coordinateId, string include, [FromQuery] Pagination pageInfo)
         {
-            dynamic response = _coordinateRepository.GetCoordinates(id, include, pageInfo);
+            dynamic response = _coordinateRepository.GetCoordinates(coordinateId, include, pageInfo);
             return StatusCode((int)response.statusCode, response);
         }
 
         [HttpPost]
         [Route("feeds")]
-        public IActionResult Post(List<Coordinates> coordinates)
+        public IActionResult Post(List<CoordinatesModel> coordinates)
         {
             dynamic response = _coordinateRepository.InsertCoordinates(coordinates);
             return StatusCode((int)response.statusCode, response);
         }
 
         [HttpDelete]
-        [Route("feeds/{id}")]
-        public IActionResult Delete(string id)
+        [Route("feeds/{coordinateId}")]
+        public IActionResult Delete(string coordinateId)
         {
-            dynamic response = _coordinateRepository.DeleteCoordinates(id);
+            dynamic response = _coordinateRepository.DeleteCoordinates(coordinateId);
             return StatusCode((int)response.statusCode, response);
         }
     }

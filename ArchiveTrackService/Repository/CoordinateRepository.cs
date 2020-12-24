@@ -2,6 +2,7 @@
 using ArchiveTrackService.Helper.Abstraction;
 using ArchiveTrackService.Models;
 using ArchiveTrackService.Models.DBModels;
+using ArchiveTrackService.Models.ResponseModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
@@ -24,22 +25,22 @@ namespace ArchiveTrackService.Repository
             _feedsIncludedRepository = feedsIncludedRepository;
         }
 
-        public dynamic GetCoordinates(string id, string includeType, Pagination pageInfo)
+        public dynamic GetCoordinates(string coordinateId, string includeType, Pagination pageInfo)
         {
             try
             {
                 int totalCount = 0;
                 feedGetResponse response = new feedGetResponse();
                 List<Coordinates> coordinatesList = new List<Coordinates>();
-                if (string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(coordinateId))
                 {
                     coordinatesList = _context.Coordinates.OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
                     totalCount = _context.Coordinates.ToList().Count();
                 }
                 else
                 {
-                    coordinatesList = _context.Coordinates.Where(x => x.CoordinateId == id).OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
-                    totalCount = _context.Coordinates.Where(x => x.CoordinateId == id).ToList().Count();
+                    coordinatesList = _context.Coordinates.Where(x => x.CoordinateId == coordinateId).OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
+                    totalCount = _context.Coordinates.Where(x => x.CoordinateId == coordinateId).ToList().Count();
                 }
 
                 var page = new Pagination
@@ -86,13 +87,13 @@ namespace ArchiveTrackService.Repository
             }
         }
 
-        public dynamic InsertCoordinates(List<Coordinates> coordinates)
+        public dynamic InsertCoordinates(List<CoordinatesModel> coordinates)
         {
             try
             {
                 List<Coordinates> coordinatesList = new List<Coordinates>();
                 if (coordinates.Count == 0)
-                    ReturnResponse.ThrowException(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
+                    ReturnResponse.ThrowException(CommonMessage.EmptyModel, StatusCodes.Status400BadRequest);
 
                 foreach (var item in coordinates)
                 {
@@ -102,7 +103,7 @@ namespace ArchiveTrackService.Repository
                     objCoordinates.VehicleId = item.VehicleId;
                     objCoordinates.Latitude = item.Latitude;
                     objCoordinates.Longitude = item.Longitude;
-                    objCoordinates.CreatedAt = item.ArchivedAt;
+                    objCoordinates.CreatedAt = item.Timestamp;
                     objCoordinates.ArchivedAt = DateTime.Now;
                     coordinatesList.Add(objCoordinates);
                 }
@@ -116,15 +117,20 @@ namespace ArchiveTrackService.Repository
             }
         }
 
-        public dynamic DeleteCoordinates(string id)
+        public dynamic DeleteCoordinates(string coordinateId)
         {
             try
             {
-                var coordinates = _context.Coordinates.Where(x => x.CoordinateId == id).FirstOrDefault();
-                if (coordinates == null)
+                List<Coordinates> coordinates = new List<Coordinates>();
+                if (string.IsNullOrEmpty(coordinateId))
+                    coordinates = _context.Coordinates.ToList();
+                else
+                    coordinates = _context.Coordinates.Where(x => x.CoordinateId == coordinateId).ToList();
+
+                if (coordinates.Count == 0)
                     ReturnResponse.ThrowException(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
 
-                _context.Coordinates.Remove(coordinates);
+                _context.Coordinates.RemoveRange(coordinates);
                 _context.SaveChanges();
                 return ReturnResponse.SuccessResponse(CommonMessage.FeedDelete, false);
             }
