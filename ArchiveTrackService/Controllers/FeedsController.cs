@@ -18,26 +18,26 @@ namespace ArchiveTrackService.Controllers
         }
 
         [HttpGet]
-        [Route("feeds")]
-        public IActionResult Get(string vehicleIds, DateTime? start, DateTime? end, string include, [FromQuery] Pagination pageInfo)
+        [Route("feeds/{id=0}")]
+        public IActionResult Get(string id, string include, [FromQuery] Pagination pageInfo)
         {
-            dynamic response = _coordinateRepository.getCoordinates(vehicleIds, start, end, include, pageInfo);
+            dynamic response = _coordinateRepository.GetCoordinates(id, include, pageInfo);
             return StatusCode((int)response.statusCode, response);
         }
 
         [HttpPost]
         [Route("feeds")]
-        public IActionResult Post(List<Coordinates> Model)
+        public IActionResult Post(List<Coordinates> coordinates)
         {
-            dynamic response = _coordinateRepository.InsertCoordinates(Model);
+            dynamic response = _coordinateRepository.InsertCoordinates(coordinates);
             return StatusCode((int)response.statusCode, response);
         }
 
         [HttpDelete]
-        [Route("feeds")]
-        public IActionResult Delete(string vehicleIds, DateTime? start, DateTime? end)
+        [Route("feeds/{id}")]
+        public IActionResult Delete(string id)
         {
-            dynamic response = _coordinateRepository.DeleteCoordinates(vehicleIds, start, end);
+            dynamic response = _coordinateRepository.DeleteCoordinates(id);
             return StatusCode((int)response.statusCode, response);
         }
     }

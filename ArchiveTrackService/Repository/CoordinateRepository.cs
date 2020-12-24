@@ -3,10 +3,14 @@ using ArchiveTrackService.Helper.Abstraction;
 using ArchiveTrackService.Models;
 using ArchiveTrackService.Models.DBModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
 
 namespace ArchiveTrackService.Repository
 {
@@ -20,62 +24,22 @@ namespace ArchiveTrackService.Repository
             _feedsIncludedRepository = feedsIncludedRepository;
         }
 
-        public dynamic getCoordinates(string vehicleIds, DateTime? startDate, DateTime? endDate, string includeType, Pagination pageInfo)
+        public dynamic GetCoordinates(string id, string includeType, Pagination pageInfo)
         {
             try
             {
                 int totalCount = 0;
                 feedGetResponse response = new feedGetResponse();
-                List<Coordinates> objCoordinateList = new List<Coordinates>();
-                if (!string.IsNullOrEmpty(vehicleIds))
+                List<Coordinates> coordinatesList = new List<Coordinates>();
+                if (string.IsNullOrEmpty(id))
                 {
-                    List<Int32?> VehicleIds = new List<Int32?>();
-                    string[] VehicleArr = vehicleIds.Split(',');
-                    if (VehicleArr.Length > 0)
-                    {
-                        foreach (var item in VehicleArr)
-                        {
-                            VehicleIds.Add(Convert.ToInt32(item));
-                        }
-                    }
-                    if (VehicleIds != null)
-                    {
-                        if (startDate != null && endDate != null)
-                        {
-                            objCoordinateList = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && VehicleIds.Contains(x.VehicleId))
-                           .OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
-
-                            totalCount = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && VehicleIds.Contains(x.VehicleId)).ToList().Count();
-                        }
-                        else
-                        {
-                            objCoordinateList = (from ac in _context.Coordinates
-                                                 where VehicleIds.Contains(Convert.ToInt32(ac.VehicleId))
-                                                 select ac
-                                           ).OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
-
-                            totalCount = (from ac in _context.Coordinates
-                                          where VehicleIds.Contains(Convert.ToInt32(ac.VehicleId))
-                                          select ac
-                                           ).ToList().Count();
-                        }
-                    }
+                    coordinatesList = _context.Coordinates.OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
+                    totalCount = _context.Coordinates.ToList().Count();
                 }
                 else
                 {
-                    if (startDate != null && endDate != null)
-                    {
-                        objCoordinateList = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
-                            .OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
-
-                        totalCount = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).ToList().Count();
-                    }
-                    else
-                    {
-                        objCoordinateList = _context.Coordinates.OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
-
-                        totalCount = _context.Coordinates.ToList().Count();
-                    }
+                    coordinatesList = _context.Coordinates.Where(x => x.CoordinateId == id).OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
+                    totalCount = _context.Coordinates.Where(x => x.CoordinateId == id).ToList().Count();
                 }
 
                 var page = new Pagination
@@ -95,11 +59,11 @@ namespace ArchiveTrackService.Repository
                         {
                             if (item.ToLower() == "vehicle" || item.ToLower() == "vehicles")
                             {
-                                includeData.vehicles = _feedsIncludedRepository.GetVehiclesIncludedData(objCoordinateList);
+                                includeData.vehicles = _feedsIncludedRepository.GetVehiclesIncludedData(coordinatesList);
                             }
                             else if (item.ToLower() == "device" || item.ToLower() == "devices")
                             {
-                                includeData.devices = _feedsIncludedRepository.GetDevicesIncludedData(objCoordinateList);
+                                includeData.devices = _feedsIncludedRepository.GetDevicesIncludedData(coordinatesList);
                             }
                         }
                     }
@@ -111,7 +75,7 @@ namespace ArchiveTrackService.Repository
                 response.status = true;
                 response.message = CommonMessage.FeedRetrived;
                 response.pagination = page;
-                response.data = objCoordinateList;
+                response.data = coordinatesList;
                 response.included = includeData;
                 response.statusCode = StatusCodes.Status200OK;
                 return response;
@@ -126,7 +90,10 @@ namespace ArchiveTrackService.Repository
         {
             try
             {
-                List<Coordinates> lstCoordinates = new List<Coordinates>();
+                List<Coordinates> coordinatesList = new List<Coordinates>();
+                if (coordinates.Count == 0)
+                    ReturnResponse.ThrowException(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
+
                 foreach (var item in coordinates)
                 {
                     Coordinates objCoordinates = new Coordinates();
@@ -137,9 +104,9 @@ namespace ArchiveTrackService.Repository
                     objCoordinates.Longitude = item.Longitude;
                     objCoordinates.CreatedAt = item.ArchivedAt;
                     objCoordinates.ArchivedAt = DateTime.Now;
-                    lstCoordinates.Add(objCoordinates);
+                    coordinatesList.Add(objCoordinates);
                 }
-                _context.Coordinates.AddRange(lstCoordinates);
+                _context.Coordinates.AddRange(coordinatesList);
                 _context.SaveChanges();
                 return ReturnResponse.SuccessResponse(CommonMessage.FeedInsert, true);
             }
@@ -149,67 +116,21 @@ namespace ArchiveTrackService.Repository
             }
         }
 
-        public dynamic DeleteCoordinates(string vehicleIds, DateTime? startDate, DateTime? endDate)
+        public dynamic DeleteCoordinates(string id)
         {
             try
             {
-                List<Coordinates> objCoordinateList = new List<Coordinates>();
-                if (!string.IsNullOrEmpty(vehicleIds))
-                {
-                    objCoordinateList = GetCoordinateList(vehicleIds, startDate, endDate);
-                }
-                else
-                {
-                    if (startDate != null && endDate != null)
-                    {
-                        objCoordinateList = _context.Coordinates.Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).ToList();
-                    }
-                    else
-                    {
-                        objCoordinateList = _context.Coordinates.ToList();
-                    }
-                }
-                if (objCoordinateList == null || objCoordinateList.ToList().Count == 0)
-                    return ReturnResponse.ErrorResponse(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
+                var coordinates = _context.Coordinates.Where(x => x.CoordinateId == id).FirstOrDefault();
+                if (coordinates == null)
+                    ReturnResponse.ThrowException(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
 
-                if (objCoordinateList != null)
-                {
-                    _context.Coordinates.RemoveRange(objCoordinateList);
-                    _context.SaveChanges();
-                }
+                _context.Coordinates.Remove(coordinates);
+                _context.SaveChanges();
                 return ReturnResponse.SuccessResponse(CommonMessage.FeedDelete, false);
             }
             catch (Exception ex)
             {
                 return ReturnResponse.ExceptionResponse(ex);
-            }
-        }
-
-        private List<Coordinates> GetCoordinateList(string vehicleIds, DateTime? startDate, DateTime? endDate)
-        {
-            try
-            {
-                List<Coordinates> objCoordinateList = new List<Coordinates>();
-                List<Coordinates> tempCoordinateList = new List<Coordinates>();
-                string[] VehicleArr = vehicleIds.Split(',');
-                if (VehicleArr.Length > 0)
-                {
-                    foreach (var item in VehicleArr)
-                    {
-                        tempCoordinateList = new List<Coordinates>();
-                        if (startDate != null && endDate != null)
-                            tempCoordinateList = _context.Coordinates.Where(x => x.VehicleId == Convert.ToInt32(item) && x.CreatedAt >= startDate && x.CreatedAt <= endDate).ToList();
-                        else
-                            tempCoordinateList = _context.Coordinates.Where(x => x.VehicleId == Convert.ToInt32(item)).ToList();
-
-                        objCoordinateList.AddRange(tempCoordinateList);
-                    }
-                }
-                return objCoordinateList;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
         }
     }

@@ -9,8 +9,8 @@ namespace ArchiveTrackService.Abstraction
 {
     public interface ICoordinateRepository
     {
-        dynamic getCoordinates(string vehicleIds, DateTime? start, DateTime? end, string include, Pagination pageInfo);
-        dynamic InsertCoordinates(List<Coordinates> model);
-        dynamic DeleteCoordinates(string vehicleIds, DateTime? start, DateTime? end);
+        dynamic GetCoordinates(string id, string include, Pagination pageInfo);
+        dynamic InsertCoordinates(List<Coordinates> coordinates);
+        dynamic DeleteCoordinates(string id);
     }
 }
