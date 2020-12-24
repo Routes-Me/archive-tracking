@@ -38,13 +38,6 @@ namespace ArchiveTrackService.Models
             return response;
         }
 
-        public static dynamic ThrowException(string message, int statusCode)
-        {
-            var ex = new Exception();
-            ex.Data.Add(message, statusCode);
-            throw ex;
-        }
-
         public static dynamic ExceptionResponse(Exception ex)
         {
             Response response = new Response();

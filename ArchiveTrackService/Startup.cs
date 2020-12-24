@@ -1,5 +1,7 @@
 using System;
 using ArchiveTrackService.Abstraction;
+using ArchiveTrackService.DataAccess.Abstraction;
+using ArchiveTrackService.DataAccess.Repository;
 using ArchiveTrackService.Helper.Abstraction;
 using ArchiveTrackService.Helper.CronJobServices;
 using ArchiveTrackService.Helper.CronJobServices.CronJobExtensionMethods;
@@ -60,6 +62,8 @@ namespace ArchiveTrackService
             //Registered services
             services.AddScoped<ICoordinateRepository, CoordinateRepository>();
             services.AddScoped<IFeedsIncludedRepository, FeedsIncludedRepository>();
+            services.AddScoped<ICoordinateDataAccessRepository, CoordinateDataAccessRepository>();
+            
 
         }
 
