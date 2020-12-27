@@ -23,7 +23,7 @@ namespace ArchiveTrackService.Helper.CronJobServices
             ICoordinateRepository _coordinateData = _scope.ServiceProvider.GetRequiredService<ICoordinateRepository>();
             try
             {
-                _coordinateData.DeleteCoordinates(null, DateTime.UtcNow.AddDays(-60), DateTime.UtcNow);
+                _coordinateData.DeleteCoordinates(string.Empty);
             }
             catch (Exception) { }
             return Task.CompletedTask;

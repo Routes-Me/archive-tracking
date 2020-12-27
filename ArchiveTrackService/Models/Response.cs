@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ArchiveTrackService.Models
 {
@@ -16,15 +17,6 @@ namespace ArchiveTrackService.Models
     }
     public class ReturnResponse
     {
-        public static dynamic ExceptionResponse(Exception ex)
-        {
-            Response response = new Response();
-            response.status = false;
-            response.message = CommonMessage.ExceptionMessage + ex.Message;
-            response.statusCode = StatusCodes.Status500InternalServerError;
-            return response;
-        }
-
         public static dynamic SuccessResponse(string message, bool isCreated)
         {
             Response response = new Response();
@@ -43,6 +35,25 @@ namespace ArchiveTrackService.Models
             response.status = true;
             response.message = message;
             response.statusCode = statusCode;
+            return response;
+        }
+
+        public static dynamic ExceptionResponse(Exception ex)
+        {
+            Response response = new Response();
+            response.status = false;
+            if (ex.Data.Keys.Count > 0)
+            {
+                var statusMessage = ex.Data.Keys.Cast<string>().Single();
+                var statusCode = ex.Data[statusMessage].ToString();
+                response.message = statusMessage;
+                response.statusCode = Convert.ToInt32(statusCode);
+            }
+            else
+            {
+                response.message = CommonMessage.ExceptionMessage + ex.Message;
+                response.statusCode = StatusCodes.Status500InternalServerError;
+            }
             return response;
         }
     }

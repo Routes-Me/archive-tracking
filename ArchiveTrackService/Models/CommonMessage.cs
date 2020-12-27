@@ -7,7 +7,7 @@ namespace ArchiveTrackService.Models
 {
     public class CommonMessage
     {
-        public static string BadRequest = "Provide valid data.";
+        public static string EmptyModel = "Empty model can not be processed.";
         public static string FeedNotFound = "Feed not found.";
         public static string FeedRetrived = "Feed retrived successfully.";
         public static string FeedInsert = "Feed inserted successfully.";

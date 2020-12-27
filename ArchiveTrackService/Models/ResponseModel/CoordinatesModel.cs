@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ArchiveTrackService.Models.DBModels
+namespace ArchiveTrackService.Models.ResponseModel
 {
-    public partial class Coordinates
+    public class CoordinatesModel
     {
         public string CoordinateId { get; set; }
         public int? DeviceId { get; set; }
         public int? VehicleId { get; set; }
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? ArchivedAt { get; set; }
+        public DateTime Timestamp { get; set; }
     }
 }
