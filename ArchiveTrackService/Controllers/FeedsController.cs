@@ -19,7 +19,7 @@ namespace ArchiveTrackService.Controllers
         }
 
         [HttpGet]
-        [Route("feeds/{coordinateId=0}")]
+        [Route("feeds/{coordinateId?}")]
         public IActionResult Get(string coordinateId, string include, [FromQuery] Pagination pageInfo)
         {
             dynamic response = _coordinateRepository.GetCoordinates(coordinateId, include, pageInfo);
