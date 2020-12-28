@@ -46,7 +46,7 @@ namespace ArchiveTrackService.DataAccess.Repository
             int totalCount = 0;
             feedGetResponse response = new feedGetResponse();
             List<Coordinates> coordinatesList = new List<Coordinates>();
-            if (string.IsNullOrEmpty(coordinateId))
+            if (string.IsNullOrEmpty(coordinateId) || coordinateId == "0")
             {
                 coordinatesList = _context.Coordinates.OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
                 totalCount = _context.Coordinates.ToList().Count();
