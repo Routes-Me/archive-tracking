@@ -42,8 +42,9 @@ namespace ArchiveTrackService
             services.AddCronJob<RemoveSynced>(c =>
             {
                 c.TimeZoneInfo = TimeZoneInfo.Local;
-                //c.CronExpression = @"*/1 * * * * *";
-                c.CronExpression = @"0 3 1 */2 *"; //  Run every 60 days at 3 AM
+                // c.CronExpression = @"*/4 * * * *"; // Run every 4 minutes
+                // c.CronExpression = @"0 3 1 */2 *"; //  Run every 60 days at 3 AM
+                c.CronExpression = @"0 3 */30 * * "; // Run every 60 days at 3 AM
             });
 
             // configure strongly typed settings objects
@@ -63,7 +64,7 @@ namespace ArchiveTrackService
             services.AddScoped<ICoordinateRepository, CoordinateRepository>();
             services.AddScoped<IFeedsIncludedRepository, FeedsIncludedRepository>();
             services.AddScoped<ICoordinateDataAccessRepository, CoordinateDataAccessRepository>();
-            
+
 
         }
 

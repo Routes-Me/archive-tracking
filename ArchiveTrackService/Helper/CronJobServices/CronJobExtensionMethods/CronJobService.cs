@@ -29,7 +29,8 @@ namespace ArchiveTrackService.Helper.CronJobServices.CronJobExtensionMethods
             if (next.HasValue)
             {
                 var delay = next.Value - DateTimeOffset.Now;
-                _timer = new System.Timers.Timer(delay.TotalMilliseconds);
+                double timerValues = delay.TotalSeconds;
+                _timer = new System.Timers.Timer(timerValues);
                 _timer.Elapsed += async (sender, args) =>
                 {
                     _timer.Dispose();  // reset and dispose timer
