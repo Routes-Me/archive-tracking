@@ -39,11 +39,17 @@ namespace ArchiveTrackService
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
 
-            services.AddCronJob<RemoveSynced>(c =>
+            // services.s<RemoveSynced>(c =>
+            // {
+            //     c.TimeZoneInfo = TimeZoneInfo.Local;
+            //     //c.CronExpression = @"*/1 * * * * *";
+            //    // c.CronExpression = @"0 3 1 */2 *"; //  Run every 60 days at 3 AM
+            // });
+
+            services.AddCronJob<SyncAnalytics>(c =>
             {
                 c.TimeZoneInfo = TimeZoneInfo.Local;
-                //c.CronExpression = @"*/1 * * * * *";
-                c.CronExpression = @"0 3 1 */2 *"; //  Run every 60 days at 3 AM
+                c.CronExpression = @"55 23 * * *"; // Runs every day at 23:55:00
             });
 
             // configure strongly typed settings objects

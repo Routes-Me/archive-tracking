@@ -13,5 +13,6 @@ namespace ArchiveTrackService.Abstraction
         dynamic GetCoordinates(string coordinateId, string include, Pagination pageInfo);
         dynamic InsertCoordinates(List<CoordinatesModel> coordinates);
         dynamic DeleteCoordinates(string coordinateId);
+        Task SyncOperationLogs();
     }
 }

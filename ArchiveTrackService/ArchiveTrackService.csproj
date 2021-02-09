@@ -24,5 +24,16 @@
     <PackageReference Include="RestSharp" Version="106.11.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="RoutesSecurity">
+      <HintPath>DLL\RoutesSecurity.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+   <ItemGroup>
+    <Reference Include="Obfuscation">
+      <HintPath>DLL\Obfuscation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>
