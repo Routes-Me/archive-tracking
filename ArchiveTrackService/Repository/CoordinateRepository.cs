@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Obfuscation;
+using RoutesSecurity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -80,7 +80,7 @@ namespace ArchiveTrackService.Repository
             {
                 operationLogs.Add(new OperationLogsDto
                 {
-                    DeviceId = ObfuscationClass.EncodeId(coordinatesGroup.FirstOrDefault().DeviceId, 1580030173).ToString(),
+                    DeviceId = Obfuscation.Encode(coordinatesGroup.FirstOrDefault().DeviceId).ToString(),
                     Duration = CalculateRunningTime(coordinatesGroup.ToArray()),
                     Date = DateTime.Now.Date
                 });

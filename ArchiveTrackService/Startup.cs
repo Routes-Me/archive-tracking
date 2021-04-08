@@ -12,6 +12,7 @@ using ArchiveTrackService.Models.DBModels;
 using ArchiveTrackService.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,6 +61,13 @@ namespace ArchiveTrackService
             var dependenciessSection = Configuration.GetSection("Dependencies");
             services.Configure<Dependencies>(dependenciessSection);
 
+            services.AddApiVersioning(config =>
+            {
+                config.DefaultApiVersion = new ApiVersion(1, 0);
+                config.AssumeDefaultVersionWhenUnspecified = true;
+                config.ReportApiVersions = true;
+            });
+
             services.AddDbContext<archivetrackserviceContext>(options =>
             {
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
@@ -69,8 +77,6 @@ namespace ArchiveTrackService
             services.AddScoped<ICoordinateRepository, CoordinateRepository>();
             services.AddScoped<IFeedsIncludedRepository, FeedsIncludedRepository>();
             services.AddScoped<ICoordinateDataAccessRepository, CoordinateDataAccessRepository>();
-            
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

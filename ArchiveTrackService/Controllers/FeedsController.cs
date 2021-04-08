@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ArchiveTrackService.Abstraction;
 using ArchiveTrackService.Models;
-using ArchiveTrackService.Models.DBModels;
 using ArchiveTrackService.Models.ResponseModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchiveTrackService.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [ApiVersion( "1.0" )]
+    [Route("v{version:apiVersion}/")]
     public class FeedsController : ControllerBase
     {
         private readonly ICoordinateRepository _coordinateRepository;
