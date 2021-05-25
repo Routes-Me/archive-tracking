@@ -9,5 +9,6 @@ namespace ArchiveTrackService.Models.Common
     {
         public string VehicleUrl { get; set; }
         public string DevicesUrl { get; set; }
+        public string VehicleAnalyticsUrl { get; set; }
     }
 }

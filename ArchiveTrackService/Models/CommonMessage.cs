@@ -7,6 +7,7 @@ namespace ArchiveTrackService.Models
 {
     public class CommonMessage
     {
+        public static string InvalidDataPassed = "Pass valid data.";
         public static string EmptyModel = "Empty model can not be processed.";
         public static string FeedNotFound = "Feed not found.";
         public static string FeedRetrived = "Feed retrived successfully.";
