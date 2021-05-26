@@ -68,7 +68,7 @@ namespace ArchiveTrackService
                 config.ReportApiVersions = true;
             });
 
-            services.AddDbContext<archivetrackserviceContext>(options =>
+            services.AddDbContext<ArchiveTrackServiceContext>(options =>
             {
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             });

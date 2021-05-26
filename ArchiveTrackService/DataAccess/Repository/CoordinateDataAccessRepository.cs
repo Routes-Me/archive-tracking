@@ -4,22 +4,20 @@ using ArchiveTrackService.Helper.Abstraction;
 using ArchiveTrackService.Models;
 using ArchiveTrackService.Models.DBModels;
 using ArchiveTrackService.Models.ResponseModel;
+using RoutesSecurity;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace ArchiveTrackService.DataAccess.Repository
 {
     public class CoordinateDataAccessRepository : ICoordinateDataAccessRepository
     {
-        private readonly archivetrackserviceContext _context;
+        private readonly ArchiveTrackServiceContext _context;
         private readonly IFeedsIncludedRepository _feedsIncludedRepository;
-        public CoordinateDataAccessRepository(archivetrackserviceContext context, IFeedsIncludedRepository feedsIncludedRepository)
+        public CoordinateDataAccessRepository(ArchiveTrackServiceContext context, IFeedsIncludedRepository feedsIncludedRepository)
         {
             _context = context;
             _feedsIncludedRepository = feedsIncludedRepository;
@@ -27,16 +25,14 @@ namespace ArchiveTrackService.DataAccess.Repository
 
         public dynamic DeleteCoordinates(string coordinateId)
         {
-            List<Coordinates> coordinates = new List<Coordinates>();
             if (string.IsNullOrEmpty(coordinateId))
-                coordinates = _context.Coordinates.ToList();
-            else
-                coordinates = _context.Coordinates.Where(x => x.CoordinateId == coordinateId).ToList();
+                Common.ThrowException(CommonMessage.InvalidDataPassed, StatusCodes.Status422UnprocessableEntity);
 
-            if (coordinates.Count == 0)
+            Coordinates coordinate = _context.Coordinates.Where(x => x.CoordinateId == Obfuscation.Decode(coordinateId)).FirstOrDefault();
+            if (coordinate == null)
                 Common.ThrowException(CommonMessage.FeedNotFound, StatusCodes.Status404NotFound);
 
-            _context.Coordinates.RemoveRange(coordinates);
+            _context.Coordinates.Remove(coordinate);
             _context.SaveChanges();
             return ReturnResponse.SuccessResponse(CommonMessage.FeedDelete, false);
         }
@@ -53,8 +49,8 @@ namespace ArchiveTrackService.DataAccess.Repository
             }
             else
             {
-                coordinatesList = _context.Coordinates.Where(x => x.CoordinateId == coordinateId).OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
-                totalCount = _context.Coordinates.Where(x => x.CoordinateId == coordinateId).ToList().Count();
+                coordinatesList = _context.Coordinates.Where(x => x.CoordinateId == Obfuscation.Decode(coordinateId)).OrderBy(a => a.CoordinateId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
+                totalCount = _context.Coordinates.Where(x => x.CoordinateId == Obfuscation.Decode(coordinateId)).ToList().Count();
             }
 
             var page = new Pagination
@@ -88,7 +84,7 @@ namespace ArchiveTrackService.DataAccess.Repository
                 includeData = null;
 
             response.status = true;
-            response.message = CommonMessage.FeedRetrived;
+            response.message = CommonMessage.FeedsRetrived;
             response.pagination = page;
             response.data = coordinatesList;
             response.included = includeData;
@@ -105,7 +101,6 @@ namespace ArchiveTrackService.DataAccess.Repository
             foreach (var item in coordinates)
             {
                 Coordinates objCoordinates = new Coordinates();
-                objCoordinates.CoordinateId = item.CoordinateId;
                 objCoordinates.DeviceId = item.DeviceId;
                 objCoordinates.VehicleId = item.VehicleId;
                 objCoordinates.Latitude = item.Latitude;
@@ -116,7 +111,7 @@ namespace ArchiveTrackService.DataAccess.Repository
             }
             _context.Coordinates.AddRange(coordinatesList);
             _context.SaveChanges();
-            return ReturnResponse.SuccessResponse(CommonMessage.FeedInsert, true);
+            return ReturnResponse.SuccessResponse(CommonMessage.FeedsInsert, true);
         }
     }
 }

@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace ArchiveTrackService.Models.DBModels
 {
-    public partial class archivetrackserviceContext : DbContext
+    public partial class ArchiveTrackServiceContext : DbContext
     {
-        public archivetrackserviceContext()
+        public ArchiveTrackServiceContext()
         {
         }
 
-        public archivetrackserviceContext(DbContextOptions<archivetrackserviceContext> options)
+        public ArchiveTrackServiceContext(DbContextOptions<ArchiveTrackServiceContext> options)
             : base(options)
         {
         }
@@ -21,16 +21,12 @@ namespace ArchiveTrackService.Models.DBModels
         {
             modelBuilder.Entity<Coordinates>(entity =>
             {
-                entity.HasKey(e => e.CoordinateId)
-                    .HasName("PRIMARY");
+                entity.HasKey(e => e.CoordinateId).HasName("PRIMARY");
 
                 entity.ToTable("coordinates");
 
                 entity.Property(e => e.CoordinateId)
-                    .HasColumnName("coordinate_id")
-                    .HasColumnType("varchar(255)")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
+                    .HasColumnName("coordinate_id");
 
                 entity.Property(e => e.ArchivedAt)
                     .HasColumnName("archived_at")
@@ -44,11 +40,11 @@ namespace ArchiveTrackService.Models.DBModels
 
                 entity.Property(e => e.Latitude)
                     .HasColumnName("latitude")
-                    .HasColumnType("decimal(10,0)");
+                    .HasColumnType("decimal(10,8)");
 
                 entity.Property(e => e.Longitude)
                     .HasColumnName("longitude")
-                    .HasColumnType("decimal(10,0)");
+                    .HasColumnType("decimal(11,8)");
 
                 entity.Property(e => e.VehicleId).HasColumnName("vehicle_id");
             });
