@@ -22,11 +22,11 @@ namespace ArchiveTrackService.Repository
 {
     public class CoordinateRepository : ICoordinateRepository
     {
-        private readonly archivetrackserviceContext _context;
+        private readonly ArchiveTrackServiceContext _context;
         private readonly ICoordinateDataAccessRepository _coordinateDataAccessRepository;
         private readonly AppSettings _appSettings;
         private readonly Dependencies _dependencies;
-        public CoordinateRepository(archivetrackserviceContext context,ICoordinateDataAccessRepository coordinateDataAccessRepository,
+        public CoordinateRepository(ArchiveTrackServiceContext context,ICoordinateDataAccessRepository coordinateDataAccessRepository,
                 IOptions<AppSettings> appSettings, IOptions<Dependencies> dependencies)
         {
             _context = context;
@@ -86,6 +86,32 @@ namespace ArchiveTrackService.Repository
                 });
             }
             await PostAPI(_dependencies.VehicleAnalyticsUrl, operationLogs);
+        }
+
+        public dynamic InsertCoordinatesForVehicle(string vehicleId, List<CoordinatesOfVehicleDto> coordinates)
+        {
+            if (coordinates == null || !coordinates.Any())
+                throw new ArgumentNullException(CommonMessage.InvalidDataPassed);
+
+            int vehicleIdDecrypted = Obfuscation.Decode(vehicleId);
+            List<Coordinates> coordinatesList = new List<Coordinates>();
+            coordinates.ForEach(c => {
+                coordinatesList.Add(new Coordinates() {
+                    VehicleId = vehicleIdDecrypted,
+                    Longitude = c.Longitude,
+                    Latitude = c.Latitude,
+                    ArchivedAt = UnixTimeStampToDateTime(c.Timestamp.ToString()),
+                    CreatedAt = DateTime.Now
+                });
+            });
+            return coordinatesList;
+        }
+
+        private DateTime UnixTimeStampToDateTime(string unixTimeStamp)
+        {
+            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(Convert.ToDouble(unixTimeStamp)).ToLocalTime();
+            return dtDateTime;
         }
 
         private async Task PostAPI(string url, dynamic objectToSend)
